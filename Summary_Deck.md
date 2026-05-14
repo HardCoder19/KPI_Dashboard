@@ -60,7 +60,7 @@ Designed a premium interface using custom CSS (glassmorphism, gradient text). Re
 
 *(Dashboard Screenshots)*
 ![Main Dashboard View](screenshots/main_dashboard.png)
-![Anomaly Tooltip Hover](screenshots/anomaly_hover.png)
+![Regional Breakdown View](screenshots/breakdown_tab.png)
 
 **3. Deterministic AI Prompting**
 Engineered structured prompts that feed Gemini raw, calculated JSON data alongside strict formatting instructions to ensure insights are delivered in punchy, business-focused bullet points.

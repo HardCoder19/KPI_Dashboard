@@ -358,58 +358,62 @@ if "ai_commentary" not in st.session_state:
     st.session_state["ai_commentary"] = {}
 if "pdf_bytes" not in st.session_state:
     st.session_state["pdf_bytes"] = None
+if "uploader_key" not in st.session_state:
+    st.session_state["uploader_key"] = 0
+if "filter_key" not in st.session_state:
+    st.session_state["filter_key"] = 0
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 # DATA LOADING & WELCOME SCREEN
 # ══════════════════════════════════════════════════════════════════════════════
 if st.session_state.get("df_raw") is None:
-    st.markdown("""
-    <div class="welcome-screen">
-        <h1 class="welcome-title">Smart KPI Dashboard</h1>
-        <p class="welcome-subtitle">Connect your data to instantly generate AI-powered business insights.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    col1, col2 = st.columns(2)
-    
-    with col1:
+    welcome_container = st.empty()
+    with welcome_container.container():
         st.markdown("""
-        <div class="welcome-card">
-            <h3>📂 Upload CSV</h3>
-            <p>Upload your monthly KPI data. The file must include metrics for revenue, conversion_rate, churn_rate, and new_customers.</p>
+        <div class="welcome-screen">
+            <h1 class="welcome-title">Smart KPI Dashboard</h1>
+            <p class="welcome-subtitle">Connect your data to instantly generate AI-powered business insights.</p>
         </div>
         """, unsafe_allow_html=True)
-        uploaded_file = st.file_uploader("Upload CSV", type=["csv"], label_visibility="collapsed", key="welcome_uploader")
-        if uploaded_file:
-            st.session_state["df_raw"] = load_csv(uploaded_file)
-            for key in ["filter_region", "filter_product"]:
-                if key in st.session_state:
-                    del st.session_state[key]
+    
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("""
+            <div class="welcome-card">
+                <h3>📂 Upload CSV</h3>
+                <p>Upload your monthly KPI data. The file must include metrics for revenue, conversion_rate, churn_rate, and new_customers.</p>
+            </div>
+            """, unsafe_allow_html=True)
+            uploaded_file = st.file_uploader("Upload CSV", type=["csv"], label_visibility="collapsed", key=f"welcome_uploader_{st.session_state['uploader_key']}")
+            if uploaded_file:
+                st.session_state["df_raw"] = load_csv(uploaded_file)
+                st.session_state["filter_key"] += 1
+                st.session_state["ai_commentary"] = {}
+                welcome_container.empty()
+                st.rerun()
+                
+        with col2:
+            st.markdown("""
+            <div class="welcome-card" style="opacity: 0.7;">
+                <h3>🔌 Connect Database</h3>
+                <p>Securely connect to PostgreSQL, Snowflake, or BigQuery to pull live metrics.</p>
+                <div style="margin-top: 16px;">
+                    <span class="status-pill pill-blue">Coming Soon</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Hidden fallback for testing: load default sample if no upload
+        if st.button("Load Sample Data (DataPulse)", type="tertiary"):
+            from pathlib import Path
+            st.session_state["df_raw"] = load_csv(str(Path("data/datapulse_kpi_data.csv")))
+            st.session_state["filter_key"] += 1
             st.session_state["ai_commentary"] = {}
+            welcome_container.empty()
             st.rerun()
             
-    with col2:
-        st.markdown("""
-        <div class="welcome-card" style="opacity: 0.7;">
-            <h3>🔌 Connect Database</h3>
-            <p>Securely connect to PostgreSQL, Snowflake, or BigQuery to pull live metrics.</p>
-            <div style="margin-top: 16px;">
-                <span class="status-pill pill-blue">Coming Soon</span>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Hidden fallback for testing: load default sample if no upload
-    if st.button("Load Sample Data (DataPulse)", type="tertiary"):
-        from pathlib import Path
-        st.session_state["df_raw"] = load_csv(str(Path("data/datapulse_kpi_data.csv")))
-        for key in ["filter_region", "filter_product"]:
-            if key in st.session_state:
-                del st.session_state[key]
-        st.session_state["ai_commentary"] = {}
-        st.rerun()
-        
     st.stop()
 
 # If we reached here, df_raw is loaded
@@ -421,9 +425,8 @@ if errors:
     st.error("**Data Validation Failed:**\n" + "\n".join(f"- {e}" for e in errors))
     if st.button("Start Over"):
         st.session_state["df_raw"] = None
-        for key in ["welcome_uploader", "sidebar_uploader", "filter_region", "filter_product"]:
-            if key in st.session_state:
-                del st.session_state[key]
+        st.session_state["uploader_key"] += 1
+        st.session_state["filter_key"] += 1
         st.session_state["ai_commentary"] = {}
         st.rerun()
     st.stop()
@@ -441,14 +444,12 @@ with st.sidebar:
 
     # ── Data Source ──
     st.markdown('<p class="sidebar-section-label">Data Source</p>', unsafe_allow_html=True)
-    new_upload = st.file_uploader("Upload new CSV", type=["csv"], label_visibility="collapsed", key="sidebar_uploader")
+    new_upload = st.file_uploader("Upload new CSV", type=["csv"], label_visibility="collapsed", key=f"sidebar_uploader_{st.session_state['uploader_key']}")
     
     if new_upload and getattr(st.session_state, "last_uploaded_file_id", None) != new_upload.file_id:
         st.session_state["df_raw"] = load_csv(new_upload)
         st.session_state["last_uploaded_file_id"] = new_upload.file_id
-        for key in ["filter_region", "filter_product"]:
-            if key in st.session_state:
-                del st.session_state[key]
+        st.session_state["filter_key"] += 1
         st.session_state["ai_commentary"] = {}
         st.session_state["pdf_bytes"] = None
         st.rerun()
@@ -456,9 +457,8 @@ with st.sidebar:
     if st.button("Start Over", type="tertiary", width="stretch"):
         st.session_state["df_raw"] = None
         st.session_state["last_uploaded_file_id"] = None
-        for key in ["welcome_uploader", "sidebar_uploader", "filter_region", "filter_product"]:
-            if key in st.session_state:
-                del st.session_state[key]
+        st.session_state["uploader_key"] += 1
+        st.session_state["filter_key"] += 1
         st.session_state["ai_commentary"] = {}
         st.rerun()
 
@@ -466,8 +466,8 @@ with st.sidebar:
 
     # ── Filters ──
     st.markdown('<p class="sidebar-section-label">Filters</p>', unsafe_allow_html=True)
-    selected_regions = st.multiselect("Region", region_options, default=region_options, key="filter_region")
-    selected_products = st.multiselect("Product Line", product_options, default=product_options, key="filter_product")
+    selected_regions = st.multiselect("Region", region_options, default=region_options, key=f"filter_region_{st.session_state['filter_key']}")
+    selected_products = st.multiselect("Product Line", product_options, default=product_options, key=f"filter_product_{st.session_state['filter_key']}")
 
     st.markdown("---")
 
