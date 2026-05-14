@@ -72,6 +72,26 @@ formatted_text = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', text)
 formatted_text = formatted_text.replace("- ", "<li>").replace("\n", "<br>")
 ```
 
+**4. Machine Learning Foundation (Scikit-Learn)**
+Before passing data to the LLM, we use deterministic math. `IsolationForest` detects revenue anomalies in the time-series data, and `LinearRegression` forecasts the Q+1 trajectory. This grounds the AI in hard numbers.
+*Code Highlight (Q+1 Forecasting):*
+```python
+model = LinearRegression()
+model.fit(X_train, y_train)
+forecast_vals = model.predict(X_future)
+```
+
+**5. React DOM Lifecycle Workarounds**
+We discovered a Streamlit edge-case where asynchronous file uploads combined with blocking AI spinners leave "ghost" widgets on the screen. We engineered a solution using dynamic session-state keys and explicit `st.empty().empty()` calls to force the React DOM to unmount stale components.
+*Code Highlight (Dynamic Unmounting):*
+```python
+welcome_container = st.empty()
+if uploaded_file:
+    st.session_state["uploader_key"] += 1  # Forces a new widget ID
+    welcome_container.empty()              # Destroys the old DOM element instantly
+    st.rerun()
+```
+
 ---
 
 ## CHALLENGES AND LEARNINGS
