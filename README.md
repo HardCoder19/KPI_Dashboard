@@ -187,5 +187,7 @@ Uses **scikit-learn `LinearRegression`** on the last 6 months:
 ## 📬 Submission
 
 Demo: [Streamlit Cloud link — add after deployment]  
-Repository: [GitHub link]  
-Author: [Your Name]
+Repository: https://github.com/HardCoder19/KPI_Dashboard/  
+Author: Manav Mishra
+
+

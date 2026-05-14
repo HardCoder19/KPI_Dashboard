@@ -2,7 +2,7 @@
 
 ---
 
-## Slide 1: PROBLEM UNDERSTANDING AND OBJECTIVE
+## PROBLEM UNDERSTANDING AND OBJECTIVE
 
 **The Problem:**
 Modern executives and stakeholders are often overwhelmed by raw data. Traditional dashboards present numbers and charts but fail to provide immediate context, requiring manual analysis to discover "the why" behind the metrics.
@@ -18,7 +18,7 @@ To build a professional-grade, AI-powered business intelligence dashboard that b
 
 ---
 
-## Slide 2: SOLUTION ARCHITECTURE AND DESIGN FLOW
+## SOLUTION ARCHITECTURE AND DESIGN FLOW
 
 **Workflow & Data Flow**
 
@@ -50,13 +50,17 @@ graph TD
 
 ---
 
-## Slide 3: IMPLEMENTATION HIGHLIGHTS
+## IMPLEMENTATION HIGHLIGHTS
 
 **1. Robust State Management**
 Implemented an "all-or-nothing" session state clearing mechanism. Whenever a user uploads a new dataset or clicks "Start Over", all downstream dependencies (regional filters, AI cache) are strictly cleared to prevent stale data crashes.
 
 **2. Executive UI / UX Polish**
 Designed a premium interface using custom CSS (glassmorphism, gradient text). Replaced clunky static anomaly cards with dynamic, context-aware tooltips directly injected into the Plotly charts, saving vertical space and improving scannability.
+
+*(Dashboard Screenshots)*
+![Main Dashboard View](screenshots/main_dashboard.png)
+![Anomaly Tooltip Hover](screenshots/anomaly_hover.png)
 
 **3. Deterministic AI Prompting**
 Engineered structured prompts that feed Gemini raw, calculated JSON data alongside strict formatting instructions to ensure insights are delivered in punchy, business-focused bullet points.
@@ -70,7 +74,7 @@ formatted_text = formatted_text.replace("- ", "<li>").replace("\n", "<br>")
 
 ---
 
-## Slide 4: CHALLENGES AND LEARNINGS
+## CHALLENGES AND LEARNINGS
 
 **Technical Challenges & Trade-offs:**
 - **Markdown Injection in Streamlit:** Rendering Gemini's markdown directly inside custom styled `<div>` containers caused bolding (`**`) to break. *Solution:* Built a lightweight regex parser to convert markdown to standard HTML tags before injection.
@@ -82,7 +86,7 @@ Combining deterministic Machine Learning (scikit-learn for strict anomaly math) 
 
 ---
 
-## Slide 5: DEMO SUMMARY AND NEXT STEPS
+## DEMO SUMMARY AND NEXT STEPS
 
 **Final Solution Summary:**
 A production-ready, highly interactive Streamlit application that transforms raw synthetic operations data into an executive performance suite. The dashboard successfully handles automated data validation, trend forecasting, AI narrative generation, and PDF report exporting.
